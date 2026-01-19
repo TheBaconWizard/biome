@@ -2,7 +2,7 @@ use crate::grit_context::{GritExecContext, GritQueryContext};
 use crate::grit_resolved_pattern::GritResolvedPattern;
 use crate::grit_target_language::LeafEquivalenceClass;
 use crate::grit_target_node::{GritTargetNode, GritTargetSyntaxKind};
-use crate::{CompileError, GritTargetLanguage};
+use crate::{CompileError, GritTargetLanguage, grit_binding::GritBinding};
 use grit_pattern_matcher::binding::Binding;
 use grit_pattern_matcher::context::{ExecContext, StaticDefinitions};
 use grit_pattern_matcher::pattern::{
@@ -193,6 +193,17 @@ impl Matcher<GritQueryContext> for GritNodePattern {
                     None => GritResolvedPattern::from_empty_binding(node.clone(), *slot_index),
                 }
             };
+
+            if matches!(pattern, Pattern::Undefined)
+                && matches!(
+                    &child_binding,
+                    GritResolvedPattern::Binding(bindings)
+                        if matches!(bindings.last(), Some(GritBinding::Empty(..)))
+                )
+            {
+                running_state = cur_state;
+                continue;
+            }
 
             let res = pattern.execute(&child_binding, &mut cur_state, context, logs);
             if res? {

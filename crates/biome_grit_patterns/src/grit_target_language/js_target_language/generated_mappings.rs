@@ -5,11 +5,14 @@ use biome_js_syntax as lang;
 use biome_rowan::AstNode;
 use lang::JsSyntaxKind;
 
+use crate::grit_target_language::SlotLiteral;
+
 /// A legacy TreeSitter pattern for backward compatibility.
 pub struct LegacyTreeSitterPattern {
     pub name: &'static str,
     pub kind: JsSyntaxKind,
     pub slots: &'static [(&'static str, u32)],
+    pub slot_parameters: &'static [(u32, SlotLiteral)],
 }
 
 /// A list of legacy TreeSitter patterns for compatibility.
@@ -18,146 +21,199 @@ pub const LEGACY_TREESITTER_COMPATIBILITY_PATTERNS: &[LegacyTreeSitterPattern] =
         name: "identifier",
         kind: JsSyntaxKind::JS_REFERENCE_IDENTIFIER,
         slots: &[],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "string",
         kind: JsSyntaxKind::JS_STRING_LITERAL_EXPRESSION,
         slots: &[],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "number",
         kind: JsSyntaxKind::JS_NUMBER_LITERAL_EXPRESSION,
         slots: &[],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "property_identifier",
         kind: JsSyntaxKind::JS_LITERAL_MEMBER_NAME,
         slots: &[],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "call_expression",
         kind: JsSyntaxKind::JS_CALL_EXPRESSION,
         slots: &[("function", 0), ("arguments", 3)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "member_expression",
         kind: JsSyntaxKind::JS_STATIC_MEMBER_EXPRESSION,
         slots: &[("object", 0), ("property", 2)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "subscript_expression",
         kind: JsSyntaxKind::JS_COMPUTED_MEMBER_EXPRESSION,
         slots: &[("object", 0), ("index", 3)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "binary_expression",
         kind: JsSyntaxKind::JS_BINARY_EXPRESSION,
         slots: &[("left", 0), ("right", 2)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "assignment_expression",
         kind: JsSyntaxKind::JS_ASSIGNMENT_EXPRESSION,
         slots: &[("left", 0), ("right", 2)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "conditional_expression",
         kind: JsSyntaxKind::JS_CONDITIONAL_EXPRESSION,
         slots: &[("condition", 0), ("consequence", 2), ("alternative", 4)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "arrow_function",
         kind: JsSyntaxKind::JS_ARROW_FUNCTION_EXPRESSION,
         slots: &[("parameters", 2), ("body", 5)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "object",
         kind: JsSyntaxKind::JS_OBJECT_EXPRESSION,
         slots: &[("properties", 1)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "array",
         kind: JsSyntaxKind::JS_ARRAY_EXPRESSION,
         slots: &[],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "pair",
         kind: JsSyntaxKind::JS_PROPERTY_OBJECT_MEMBER,
         slots: &[("key", 0), ("value", 2)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "if_statement",
         kind: JsSyntaxKind::JS_IF_STATEMENT,
         slots: &[("condition", 2), ("consequence", 4)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "for_statement",
         kind: JsSyntaxKind::JS_FOR_STATEMENT,
         slots: &[("initializer", 2), ("condition", 4), ("body", 8)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "while_statement",
         kind: JsSyntaxKind::JS_WHILE_STATEMENT,
         slots: &[("condition", 2), ("body", 4)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "function_declaration",
         kind: JsSyntaxKind::JS_FUNCTION_DECLARATION,
         slots: &[("name", 2), ("body", 7)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "return_statement",
         kind: JsSyntaxKind::JS_RETURN_STATEMENT,
         slots: &[],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "variable_declaration",
         kind: JsSyntaxKind::JS_VARIABLE_DECLARATION,
         slots: &[],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "expression_statement",
         kind: JsSyntaxKind::JS_EXPRESSION_STATEMENT,
         slots: &[],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "jsx_expression",
         kind: JsSyntaxKind::JSX_EXPRESSION_CHILD,
         slots: &[],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "jsx_attribute",
         kind: JsSyntaxKind::JSX_ATTRIBUTE,
         slots: &[("name", 0), ("value", 1)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "jsx_element",
         kind: JsSyntaxKind::JSX_ELEMENT,
         slots: &[],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "jsx_self_closing_element",
         kind: JsSyntaxKind::JSX_SELF_CLOSING_ELEMENT,
         slots: &[("name", 1), ("type_arguments", 2), ("attributes", 3)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "jsx_opening_element",
         kind: JsSyntaxKind::JSX_OPENING_ELEMENT,
         slots: &[("name", 1), ("type_arguments", 2), ("attributes", 3)],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "jsx_closing_element",
         kind: JsSyntaxKind::JSX_CLOSING_ELEMENT,
         slots: &[],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "jsx_text",
         kind: JsSyntaxKind::JSX_TEXT,
         slots: &[],
+        slot_parameters: &[],
     },
     LegacyTreeSitterPattern {
         name: "jsx_namespace_name",
         kind: JsSyntaxKind::JSX_NAMESPACE_NAME,
         slots: &[],
+        slot_parameters: &[],
+    },
+    LegacyTreeSitterPattern {
+        name: "object_type",
+        kind: JsSyntaxKind::TS_OBJECT_TYPE,
+        slots: &[("signatures", 1)],
+        slot_parameters: &[],
+    },
+    LegacyTreeSitterPattern {
+        name: "type_annotation",
+        kind: JsSyntaxKind::TS_TYPE_ANNOTATION,
+        slots: &[("type", 1)],
+        slot_parameters: &[],
+    },
+    LegacyTreeSitterPattern {
+        name: "property_signature",
+        kind: JsSyntaxKind::TS_PROPERTY_SIGNATURE_TYPE_MEMBER,
+        slots: &[("name", 1), ("type", 3)],
+        slot_parameters: &[],
+    },
+    LegacyTreeSitterPattern {
+        name: "required_parameter",
+        kind: JsSyntaxKind::JS_FORMAL_PARAMETER,
+        slots: &[("type", 3)],
+        slot_parameters: &[(2, SlotLiteral::Undefined)],
     },
 ];
 
@@ -175,6 +231,14 @@ pub fn legacy_treesitter_slots_for_kind(kind: JsSyntaxKind) -> &'static [(&'stat
         .iter()
         .find(|p| p.kind == kind)
         .map_or(&[], |p| p.slots)
+}
+
+/// Returns injected slot parameters for a legacy pattern name.
+pub fn legacy_treesitter_slot_parameters_for_name(name: &str) -> &'static [(u32, SlotLiteral)] {
+    LEGACY_TREESITTER_COMPATIBILITY_PATTERNS
+        .iter()
+        .find(|p| p.name == name)
+        .map_or(&[], |p| p.slot_parameters)
 }
 
 /// Returns the syntax kind for a legacy or native node name.
@@ -210,6 +274,10 @@ pub fn kind_by_name(node_name: &str) -> Option<JsSyntaxKind> {
         "jsx_closing_element" => Some(JsSyntaxKind::JSX_CLOSING_ELEMENT),
         "jsx_text" => Some(JsSyntaxKind::JSX_TEXT),
         "jsx_namespace_name" => Some(JsSyntaxKind::JSX_NAMESPACE_NAME),
+        "object_type" => Some(JsSyntaxKind::TS_OBJECT_TYPE),
+        "type_annotation" => Some(JsSyntaxKind::TS_TYPE_ANNOTATION),
+        "property_signature" => Some(JsSyntaxKind::TS_PROPERTY_SIGNATURE_TYPE_MEMBER),
+        "required_parameter" => Some(JsSyntaxKind::JS_FORMAL_PARAMETER),
 
         // Native Biome AST patterns
         "JsAccessorModifier" => lang::JsAccessorModifier::KIND_SET.iter().next(),

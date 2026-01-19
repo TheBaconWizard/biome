@@ -21,6 +21,15 @@ use crate::grit_js_parser::GritJsParser;
 use crate::grit_target_node::{GritTargetNode, GritTargetSyntaxKind};
 use crate::grit_tree::GritTargetTree;
 
+#[derive(Clone, Copy, Debug)]
+pub enum SlotLiteral {
+    Undefined,
+    String(&'static str),
+    Boolean(bool),
+    Int(i64),
+    Float(f64),
+}
+
 /// Generates the `GritTargetLanguage` enum.
 ///
 /// This enum contains a variant for every language that we support running Grit
@@ -117,6 +126,12 @@ macro_rules! generate_target_language {
             pub fn named_slots_for_kind(&self, kind: GritTargetSyntaxKind) -> &'static [(&'static str, u32)] {
                 match self {
                     $(Self::$language(lang) => lang.named_slots_for_kind(kind)),+
+                }
+            }
+
+            pub fn slot_parameters_for_name(&self, name: &str) -> &'static [(u32, SlotLiteral)] {
+                match self {
+                    $(Self::$language(lang) => lang.slot_parameters_for_name(name)),+
                 }
             }
 
@@ -328,6 +343,11 @@ trait GritTargetLanguageImpl {
     /// Grit playground), node names should be aligned with TreeSitter's
     /// `ts_language_field_name_for_id()`.
     fn named_slots_for_kind(&self, kind: GritTargetSyntaxKind) -> &'static [(&'static str, u32)];
+
+    /// Returns literal slot parameters for legacy TreeSitter patterns.
+    fn slot_parameters_for_name(&self, _node_name: &str) -> &'static [(u32, SlotLiteral)] {
+        &[]
+    }
 
     /// Strings that provide context for parsing snippets.
     ///

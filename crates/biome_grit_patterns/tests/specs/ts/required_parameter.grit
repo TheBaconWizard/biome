@@ -1,0 +1,5 @@
+required_parameter(
+  type = type_annotation(
+    type = TsNumberType()
+  )
+)

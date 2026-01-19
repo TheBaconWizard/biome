@@ -2,11 +2,14 @@ use super::compilation_context::NodeCompilationContext;
 use super::{PatternCompiler, call_compiler::*};
 use crate::NodeLikeArgumentError;
 use crate::grit_node_patterns::{GritNodePattern, GritNodePatternArg};
+use crate::grit_target_language::SlotLiteral;
 use crate::grit_target_node::GritTargetSyntaxKind;
 use crate::{CompileError, grit_context::GritQueryContext};
 use biome_grit_syntax::GritNodeLike;
 use biome_rowan::AstNode;
-use grit_pattern_matcher::pattern::Pattern;
+use grit_pattern_matcher::pattern::{
+    BooleanConstant, FloatConstant, IntConstant, Pattern, StringConstant,
+};
 use std::cmp::Ordering;
 
 pub(crate) struct NodeLikeCompiler;
@@ -92,5 +95,26 @@ fn node_pattern_from_node_with_name_and_kind(
         args.push(GritNodePatternArg::new(*slot_index, pattern));
     }
 
+    for (slot_index, literal) in context.compilation.lang.slot_parameters_for_name(&name) {
+        if args.iter().any(|arg| arg.slot_index == *slot_index) {
+            Err(NodeLikeArgumentError::DuplicateArguments { name: name.clone() })?;
+        }
+
+        let pattern = pattern_from_slot_literal(literal);
+        args.push(GritNodePatternArg::new(*slot_index, pattern));
+    }
+
     Ok(Pattern::AstNode(Box::new(GritNodePattern { kind, args })))
+}
+
+fn pattern_from_slot_literal(literal: &SlotLiteral) -> Pattern<GritQueryContext> {
+    match literal {
+        SlotLiteral::Undefined => Pattern::Undefined,
+        SlotLiteral::String(value) => {
+            Pattern::StringConstant(StringConstant::new((*value).to_string()))
+        }
+        SlotLiteral::Boolean(value) => Pattern::BooleanConstant(BooleanConstant::new(*value)),
+        SlotLiteral::Int(value) => Pattern::IntConstant(IntConstant::new(*value)),
+        SlotLiteral::Float(value) => Pattern::FloatConstant(FloatConstant::new(*value)),
+    }
 }

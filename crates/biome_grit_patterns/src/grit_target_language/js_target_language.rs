@@ -3,7 +3,7 @@ pub mod generated_mappings;
 
 use super::{
     DisregardedSlotCondition, GritTargetLanguageImpl, LeafEquivalenceClass, LeafNormalizer,
-    normalize_quoted_string,
+    SlotLiteral, normalize_quoted_string,
 };
 use crate::{
     CompileError,
@@ -13,7 +13,8 @@ use biome_js_syntax::{JsLanguage, JsSyntaxKind};
 use biome_rowan::{RawSyntaxKind, SyntaxKindSet};
 use constants::DISREGARDED_SNIPPET_SLOTS;
 use generated_mappings::{
-    kind_by_name, legacy_treesitter_name_for_kind, legacy_treesitter_slots_for_kind,
+    kind_by_name, legacy_treesitter_name_for_kind, legacy_treesitter_slot_parameters_for_name,
+    legacy_treesitter_slots_for_kind,
 };
 
 const COMMENT_KINDS: SyntaxKindSet<JsLanguage> =
@@ -70,6 +71,10 @@ impl GritTargetLanguageImpl for JsTargetLanguage {
             return &[];
         };
         legacy_treesitter_slots_for_kind(kind)
+    }
+
+    fn slot_parameters_for_name(&self, node_name: &str) -> &'static [(u32, SlotLiteral)] {
+        legacy_treesitter_slot_parameters_for_name(node_name)
     }
 
     fn snippet_context_strings(&self) -> &[(&'static str, &'static str)] {

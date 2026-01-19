@@ -11,6 +11,7 @@ use biome_fs::FileSystemDiagnostic;
 use biome_grit_patterns::CompileError;
 use biome_resolver::{ResolveError, ResolveErrorDiagnostic};
 use biome_rowan::SyntaxError;
+use tracing::warn;
 
 /// Series of errors that can be thrown while loading a plugin.
 #[derive(Deserialize, Diagnostic, Serialize)]
@@ -42,9 +43,11 @@ pub enum PluginDiagnostic {
 
 impl From<CompileError> for PluginDiagnostic {
     fn from(value: CompileError) -> Self {
+        warn!(error = ?value, "failed to compile Grit plugin");
+        let detail = format!("{value:?}");
         Self::Compile(CompileDiagnostic {
             message: MessageAndDescription::from(
-                markup! {"Failed to compile the Grit plugin"}.to_owned(),
+                markup! {"Failed to compile the Grit plugin: "{detail}}.to_owned(),
             ),
             source: Some(Error::from(value)),
         })

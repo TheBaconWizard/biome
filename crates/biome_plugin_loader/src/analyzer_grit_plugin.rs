@@ -16,6 +16,7 @@ use camino::{Utf8Path, Utf8PathBuf};
 use grit_pattern_matcher::{binding::Binding, pattern::ResolvedPattern};
 use grit_util::{AnalysisLogs, error::GritPatternError};
 use std::{borrow::Cow, fmt::Debug, str::FromStr, sync::Arc};
+use tracing::warn;
 
 /// Definition of an analyzer plugin.
 #[derive(Debug)]
@@ -36,7 +37,18 @@ impl AnalyzerGritPlugin {
                 .as_predicate(),
             ])
             .with_path(path);
-        let grit_query = compile_pattern_with_options(&source, options)?;
+        let grit_query = match compile_pattern_with_options(&source, options) {
+            Ok(grit_query) => grit_query,
+            Err(error) => {
+                warn!(
+                    plugin_path = %path,
+                    source_len = source.len(),
+                    error_debug = ?error,
+                    "failed to compile Grit plugin"
+                );
+                return Err(error.into());
+            }
+        };
 
         Ok(Self { grit_query })
     }

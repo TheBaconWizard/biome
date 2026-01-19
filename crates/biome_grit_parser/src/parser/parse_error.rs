@@ -3,7 +3,9 @@ use crate::parser::GritParser;
 use biome_parser::Parser;
 use biome_parser::diagnostic::expected_node;
 use biome_parser::prelude::ParseDiagnostic;
+use biome_parser::prelude::TokenSource;
 use biome_rowan::TextRange;
+use tracing::warn;
 
 pub(crate) fn expected_definition(p: &GritParser, range: TextRange) -> ParseDiagnostic {
     p.err_builder("Expected a definition.", range)
@@ -39,9 +41,26 @@ pub(crate) fn expected_map_element(p: &GritParser, range: TextRange) -> ParseDia
 }
 
 pub(crate) fn expected_node_arg(p: &GritParser, range: TextRange) -> ParseDiagnostic {
-    p.err_builder("Unexpected node argument.", range).with_hint(
-        "Node arguments must be patterns, optionally preceded by a name and an equal sign.",
-    )
+    let source = p.source().text();
+    let start: usize = range.start().into();
+    let end: usize = range.end().into();
+    let snippet = source
+        .get(start..end)
+        .unwrap_or("")
+        .trim()
+        .replace('\n', " ");
+    warn!(
+        token = ?p.cur(),
+        range_start = start,
+        range_end = end,
+        snippet = %snippet,
+        "unexpected node argument"
+    );
+    p.err_builder("Unexpected node argument.", range)
+        .with_hint(
+            "Node arguments must be patterns, optionally preceded by a name and an equal sign.",
+        )
+        .with_detail(range, format!("Node argument text: `{snippet}`"))
 }
 
 pub(crate) fn expected_pattern(p: &GritParser, range: TextRange) -> ParseDiagnostic {
